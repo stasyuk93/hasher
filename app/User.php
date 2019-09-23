@@ -36,4 +36,24 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function country()
+    {
+        return $this->belongsTo(\App\Models\Country::class);
+    }
+
+    public function info()
+    {
+        return $this->belongsTo(\App\Models\UserInfo::class);
+    }
+
+    public function cookie()
+    {
+        return $this->hasMany(\App\Models\UserCookie::class);
+    }
+
+    public function hashWords()
+    {
+        return $this->belongsToMany(\App\Models\HashWord::class, 'user_hash_words');
+    }
 }
