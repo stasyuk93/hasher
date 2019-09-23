@@ -1,0 +1,7 @@
+hasher_nginx:
+  ports:
+    - 800:80
+
+hasher_db:
+  ports:
+    - 3307:3306

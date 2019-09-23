@@ -1,0 +1,27 @@
+hasher_db:
+    image: mysql:5.7
+    container_name: hasher_db
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: hasher
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+    command: mysqld --sql_mode="STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" --disable-partition-engine-check
+
+hasher_php:
+    build: docker/php
+    restart: always
+    container_name: hasher_php
+    links:
+        - hasher_db
+    volumes:
+        - ./:/var/www/hasher
+
+hasher_nginx:
+    build: docker/nginx
+    restart: always
+    container_name: hasher_nginx
+    links:
+        - hasher_php
+    volumes_from:
+        - hasher_php
