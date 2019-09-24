@@ -3,38 +3,67 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Hasher;
+use App\Models\Word;
+use App\Models\Hash;
 
 class VocabularyController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function hasher(Request $request)
     {
-        //
+        $vocabulary = $request->get('vocabulary');
+        foreach ($vocabulary as &$item){
+            if(isset($item['algorithm']) && !empty($item['word'])) {
+                $item['hash'] = Hasher::generateHash($item['word'], $item['algorithm']);
+            }
+        }
+        return response()->json($vocabulary);
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function index(Request $request)
+    {
+        $vocabulary = $request->user()->hashWords()->with('word', 'hash')->get();
+
+        return view('vocabulary.index', compact('vocabulary'));
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function create()
     {
-        //
+        $algorithms = Hasher::getHashAlgorithmList();
+
+        return view('vocabulary.create', compact('algorithms'));
+
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
-        //
+        $vocabulary = $request->get('vocabulary');
+        $user = $request->user();
+        foreach ($vocabulary as $item){
+            if(empty($item['word']) || empty($item['algorithm'])) continue;
+            if(empty($item['hash'])) $item['hash'] = Hasher::generateHash($item['word'], $item['algorithm']);
+            $word = Word::firstOrCreate(['word' => $item['word']]);
+            $hash = Hash::where('name', $item['algorithm'])->first();
+            $hashWord = $word->hashWord()->firstOrCreate(['hash_id' => $hash->id],['hash' => $item['hash']]);
+            $user->hashWords()->syncWithoutDetaching($hashWord->id);
+        }
+        return redirect()->route('vocabulary.index');
     }
 
     /**
