@@ -16,6 +16,7 @@ hasher_php:
         - hasher_db
     volumes:
         - ./:/var/www/hasher
+    command: sh docker/php/cron/auto-start.sh
 
 hasher_nginx:
     build: docker/nginx
