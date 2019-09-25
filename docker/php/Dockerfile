@@ -24,6 +24,18 @@ COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 RUN usermod -u 1000 www-data
 
+# Create the log file
+RUN touch /var/log/schedule.log
+RUN chmod 0777 /var/log/schedule.log
+
+# Add crontab file in the cron directory
+COPY cron/scheduler /etc/cron.d/
+
+RUN chmod 0644 /etc/cron.d/scheduler
+
+# Run the cron
+RUN crontab /etc/cron.d/scheduler
+
 VOLUME ["/var/www/hasher"]
 
 WORKDIR /var/www/hasher

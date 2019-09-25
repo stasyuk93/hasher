@@ -16,8 +16,18 @@ Route::get('/', function () {
     return redirect()->route('vocabulary.index');
 });
 
+Route::get('vocabulary/json', 'VocabularyController@indexJson')
+    ->middleware('auth')
+    ->name('vocabulary.json');
+
+Route::get('vocabulary/xml', 'VocabularyController@getXml')->name('vocabulary.xml');
+
 Auth::routes();
 
 Route::resource('/vocabulary','VocabularyController')->middleware('auth');
-Route::match(['post','get'],'/vocabulary/hasher','VocabularyController@hasher')->name('vocabulary.hasher');
+
+Route::match(['post','get'],'/vocabulary/hasher','VocabularyController@hasher')
+    ->name('vocabulary.hasher');
+
+
 

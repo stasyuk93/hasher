@@ -6,9 +6,29 @@ use Illuminate\Http\Request;
 use Hasher;
 use App\Models\Word;
 use App\Models\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class VocabularyController extends Controller
 {
+
+    public function indexJson(Request $request)
+    {
+        $vocabulary = $request->user()->hashWords()->with('word', 'hash')->get();
+        $response = [];
+        foreach ($vocabulary as $item){
+            $response[] = [
+                'word' => $item->word->word,
+                'hash' => $item->hash,
+                'algorithm' => $item->getRelation('hash')->name,
+            ];
+        }
+        return response()->json($response);
+    }
+
+    public function getXml()
+    {
+        return response(Storage::get('public/users.xml'))->header('Content-type', 'text/xml');
+    }
 
     /**
      * @param Request $request

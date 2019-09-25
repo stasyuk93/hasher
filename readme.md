@@ -9,7 +9,8 @@ Tutorial for docker:
 5) run command in container:
     1) composer install
     2) php artisan migrate
-    3) exit
+    3) php artisan db:seed
+    4) exit
     
 open http://127.0.0.1:800
 
